@@ -6,6 +6,7 @@ import uuid
 class State(TypedDict):
     user_id: uuid.UUID
     id: uuid.UUID
+    source: str
     title: str
     technologies: list[str]
     content: str

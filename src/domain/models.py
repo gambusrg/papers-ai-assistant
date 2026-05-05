@@ -46,3 +46,20 @@ class Paper(BaseModel):
     project_content_points: str = ""
     user_content_points: str = ""
     related_papers: list[uuid.UUID] = Field(default_factory=list)
+
+
+class RawPaper(BaseModel):
+    id: uuid.UUID = Field(description="id of the paper", default_factory=uuid.uuid4)
+    title: str
+    headers: list[str]
+    content: str
+    pages: int
+
+    @classmethod
+    def from_dict(cls, document: dict) -> "RawPaper":
+        return cls(
+            title=document.get("title", ""),
+            headers=document.get("headers", []),
+            content=document.get("content", ""),
+            pages=document.get("pages", 0),
+        )
