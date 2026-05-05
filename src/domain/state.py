@@ -4,6 +4,7 @@ import uuid
 
 
 class State(TypedDict):
+    user_id: uuid.UUID
     id: uuid.UUID
     title: str
     technologies: list[str]
