@@ -1,7 +1,7 @@
 import yaml
 
 from src.domain.conversation_state import ConversationState
-from src.domain.ports import LLMPort, VectorStorePort
+from src.domain.ports import LLMPort
 
 with open("resources/prompts/conversational.yaml") as f:
     CONVERSATIONAL_PROMPT = yaml.safe_load(f)
