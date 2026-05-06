@@ -34,6 +34,7 @@ class Profile(BaseModel):
 
 
 class Paper(BaseModel):
+    user_id: uuid.UUID = Field(description="id of the user", default_factory=uuid.uuid4)
     id: uuid.UUID = Field(description="id of the paper", default_factory=uuid.uuid4)
     title: str
     technologies: list[str]
