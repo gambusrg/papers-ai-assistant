@@ -1,5 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
+from src.application.agents.comparator.agent import compare
 from src.application.agents.extractor.agent import extractor_agent
 from src.application.agents.orchestrator.agent import orchestrate
 from src.application.agents.reader.agent import reader_agent
@@ -19,11 +20,11 @@ graph.add_conditional_edges(
 graph.add_edge("reader", "extractor")
 
 graph.add_node("memory", memory_agent)
-graph.add_node("comparator", compare_agent)
+graph.add_node("comparator", compare)
 
 graph.add_edge("extractor", "memory")
 graph.add_edge("memory", END)
 
 graph.add_conditional_edges(
-    "comparator", compare_agent, {"reprocess": "extractor", "discard": END}
+    "comparator", compare, {"reprocess": "extractor", "discard": END}
 )

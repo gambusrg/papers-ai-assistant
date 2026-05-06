@@ -45,6 +45,8 @@ class Paper(BaseModel):
     user_interest_points: list[str] = Field(default_factory=list)
     project_content_points: str = ""
     user_content_points: str = ""
+    previous_user_interests: list[str] = Field(default_factory=list)
+    previous_project_interests: list[str] = Field(default_factory=list)
     related_papers: list[uuid.UUID] = Field(default_factory=list)
 
 

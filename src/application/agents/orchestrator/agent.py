@@ -2,7 +2,7 @@ from src.domain.models import Paper
 from src.domain.ports import VectorStorePort
 
 
-def orchestrate(paper_id: Paper, vector_store: VectorStorePort) -> bool:
+def orchestrate(paper: Paper, vector_store: VectorStorePort) -> bool:
     """_summary_
 
     Args:
@@ -12,8 +12,8 @@ def orchestrate(paper_id: Paper, vector_store: VectorStorePort) -> bool:
     Returns:
         str: _description_
     """
-    exists = vector_store.exists(paper.id)
+    exists = vector_store.exists(paper_id=paper.id)
     if exists:
-        return
+        return True
     else:
-        return
+        return False

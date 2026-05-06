@@ -18,3 +18,7 @@ class State(TypedDict):
     project_content_points: str
     user_content_points: str
     related_papers: list[uuid.UUID]
+    previous_user_interests: list[str]
+    previous_project_interests: list[str]
+    user_interests: list[str]
+    project_interests: list[str]
