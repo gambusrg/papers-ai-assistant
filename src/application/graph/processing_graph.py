@@ -2,6 +2,7 @@ from langgraph.graph import END, START, StateGraph
 
 from src.application.agents.comparator.agent import compare
 from src.application.agents.extractor.agent import extractor_agent
+from src.application.agents.memory.agent import memory_agent
 from src.application.agents.orchestrator.agent import orchestrate
 from src.application.agents.reader.agent import reader_agent
 from src.domain.state import State
