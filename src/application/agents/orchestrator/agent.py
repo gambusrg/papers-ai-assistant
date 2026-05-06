@@ -1,19 +1,16 @@
-from src.domain.models import Paper
 from src.domain.ports import VectorStorePort
+from src.domain.state import State
 
 
-def orchestrate(paper: Paper, vector_store: VectorStorePort) -> bool:
-    """_summary_
+def orchestrate(state: State, vector_store: VectorStorePort) -> str:
+    """Checks if the paper already exists in the vector store and routes accordingly.
 
     Args:
-        paper (Paper): _description_
-        vector_store (VectorStorePort): _description_
+        state (State): current graph state
+        vector_store (VectorStorePort): vector store port implementation
 
     Returns:
-        str: _description_
+        str: "existing" if paper already processed, "new" otherwise
     """
-    exists = vector_store.exists(paper_id=paper.id)
-    if exists:
-        return True
-    else:
-        return False
+    exists = vector_store.exists(paper_id=state["id"])
+    return "existing" if exists else "new"
