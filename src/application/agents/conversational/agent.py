@@ -7,23 +7,20 @@ with open("resources/prompts/conversational.yaml") as f:
     CONVERSATIONAL_PROMPT = yaml.safe_load(f)
 
 
-def conversation_agent(
-    state: ConversationState, vector_store: VectorStorePort, llm: LLMPort
-) -> dict:
-    """_summary_
+def conversation_agent(state: ConversationState, llm: LLMPort) -> dict:
+    """Generates a response to the user query using available conversation context.
 
     Args:
-        state (ConversationState): _description_
-        vector_store (VectorStorePort): _description_
-        llm (LLMPort): _description_
+        state (ConversationState): current conversation state
+        llm (LLMPort): LLM port implementation
 
     Returns:
-        dict: _description_
+        dict: updated state with response
     """
     prompt = CONVERSATIONAL_PROMPT["conversational"]["system"].format(
         conversation_context=state["conversation_context"], query=state["query"]
     )
-    response = llm.complete(prompt=prompt, model="google-ai-studio")
+    response = llm.complete(prompt=prompt, model="gemini-2.0-flash")
 
     return {"response": response}
 
