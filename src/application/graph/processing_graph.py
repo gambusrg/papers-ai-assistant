@@ -11,17 +11,15 @@ from src.core.dependency_injector import llm, vector_store
 from src.domain.state import State
 
 graph = StateGraph(State)
-graph.add_node("orchestrator", partial(orchestrate, vector_store=vector_store))
-graph.add_edge(START, "orchestrator")
-
-graph.add_node("reader", reader_agent)
-graph.add_node("extractor", partial(extractor_agent, llm=llm))
 
 graph.add_conditional_edges(
-    "orchestrator",
+    START,
     partial(orchestrate, vector_store=vector_store),
     {"new": "reader", "existing": "comparator"},
 )
+
+graph.add_node("reader", reader_agent)
+graph.add_node("extractor", partial(extractor_agent, llm=llm))
 
 graph.add_edge("reader", "extractor")
 
@@ -34,3 +32,4 @@ graph.add_edge("memory", END)
 graph.add_conditional_edges(
     "comparator", compare, {"reprocess": "extractor", "discard": END}
 )
+graph = graph.compile()

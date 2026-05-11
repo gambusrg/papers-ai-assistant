@@ -1,10 +1,29 @@
 import datetime
 import uuid
 
+from src.domain.models import Paper
 from src.domain.state import State
 
 TEST_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 TEST_PAPER_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
+
+TEST_PAPER = Paper(
+    user_id=TEST_USER_ID,
+    id=TEST_PAPER_ID,
+    title="Attention is All You Need",
+    technologies=["transformers", "attention", "nlp"],
+    content="We propose a new simple network architecture, the Transformer...",
+    headers=["Abstract", "Introduction", "Model Architecture"],
+    pages=15,
+    timestamp=datetime.datetime(2024, 1, 1, 0, 0, 0),
+    project_interest_points=[],
+    user_interest_points=[],
+    project_content_points="",
+    user_content_points="",
+    previous_user_interests=["deep learning", "nlp"],
+    previous_project_interests=["python", "pytorch"],
+    related_papers=[],
+)
 
 from src.domain.conversation_state import ConversationState
 

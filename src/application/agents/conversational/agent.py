@@ -20,7 +20,7 @@ def conversation_agent(state: ConversationState, llm: LLMPort) -> dict:
     prompt = CONVERSATIONAL_PROMPT["conversational"]["system"].format(
         conversation_context=state["conversation_context"], query=state["query"]
     )
-    response = llm.complete(prompt=prompt, model="gemini-2.0-flash")
+    response = llm.complete(prompt=prompt, model="llama-3.3-70b-versatile")
 
     return {"response": response}
 

@@ -22,7 +22,7 @@ class URLReader(Reader):
         Returns:
             RawPaper: Object of the read paper
         """
-        r = requests.get(source)
+        r = requests.get(source, verify=False)
         data = r.content
         doc = pymupdf.Document(stream=data)
 
