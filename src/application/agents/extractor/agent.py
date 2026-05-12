@@ -2,6 +2,7 @@ import json
 
 import yaml
 
+from src.domain.lllm_moldes import ExtractorLLM
 from src.domain.ports import LLMPort
 from src.domain.state import State
 
@@ -29,9 +30,16 @@ def extractor_agent(state: State, llm: LLMPort) -> dict:
     raw_response = llm.complete(
         prompt=extractor_prompt, model="llama-3.3-70b-versatile"
     )
-    logger.info(f"LLM Extractor response: {raw_response}")
-    json_start = raw_response.find("{")
-    json_end = raw_response.rfind("}") + 1
-    interest_content = json.loads(raw_response[json_start:json_end])
+
+    logger.info(f"extracted: {raw_response}")
+
+    try:
+        json_start = raw_response.find("{")
+        decoder = json.JSONDecoder()
+        interest_content, _ = decoder.raw_decode(raw_response, json_start)
+        ExtractorLLM(**interest_content)
+
+    except Exception as e:
+        raise e
 
     return interest_content

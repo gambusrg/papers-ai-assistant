@@ -15,7 +15,9 @@ def memory_agent(state: State, vector_store: VectorStorePort) -> dict:
         dict: updated state with related_papers
     """
     query = f"{state['title']} {' '.join(state['technologies'])} {' '.join(state['headers'])}"
-    similar_papers = vector_store.search_similar(query=query, user_id=state["user_id"])
+    similar_papers = vector_store.search_similar(
+        query=query, user_id=str(state["user_id"])
+    )
 
     related_paper_ids = [paper.id for paper in similar_papers]
 

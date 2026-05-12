@@ -12,7 +12,8 @@ from src.domain.conversation_state import ConversationState
 from src.domain.state import State
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
+logging.getLogger("src").setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -44,8 +45,8 @@ def add_paper(request: PaperRequest):
         "related_papers": [],
         "previous_user_interests": [],
         "previous_project_interests": [],
-        "user_interests": [],
-        "project_interests": [],
+        "user_interests": ["deep learning", "NLP", "transformers", "attention mechanisms"],
+        "project_interests": ["Python", "LLMs", "RAG", "vector databases"],
     }
     state = graph.invoke(initial_state)
 
