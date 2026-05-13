@@ -15,11 +15,11 @@ class ChromaVectorStore(VectorStorePort):
         result = self.collection.get(ids=[str(paper_id)])
         return len(result["ids"]) > 0
 
-    def search_similar(self, query: str, user_id: str) -> list[Paper]:
+    def search_similar(self, query: str, user_id: str, paper_id: str) -> list[Paper]:
         results = self.collection.query(
             query_texts=[query],
             n_results=5,
-            where={"user_id": user_id},
+            where={"user_id": user_id, "paper_id": paper_id},
         )
         return [
             Paper(
@@ -39,7 +39,17 @@ class ChromaVectorStore(VectorStorePort):
             for m, doc in zip(results["metadatas"][0], results["documents"][0])
         ]
 
-    def save_paper(self, paper: Paper) -> None:
+    def search_similar_chunks(
+        self, query: str, user_id: str, paper_id: str
+    ) -> list[str]:
+        results = self.collection.query(
+            query_texts=[query],
+            n_results=15,
+            where={"paper_id": paper_id},
+        )
+        return results["documents"][0]
+
+    def save_paper(self, paper: Paper) -> None:  # TODO: move to relational DB
         self.collection.add(
             ids=[str(paper.id)],
             documents=[paper.content],
@@ -57,5 +67,14 @@ class ChromaVectorStore(VectorStorePort):
                     "user_content_points": paper.user_content_points,
                     "project_content_points": paper.project_content_points,
                 }
+            ],
+        )
+
+    def index_paper(self, texts: list[str], paper_id: str, user_id: str) -> None:
+        self.collection.add(
+            ids=[f"{paper_id}_{i}" for i in range(len(texts))],
+            documents=texts,
+            metadatas=[
+                {"paper_id": str(paper_id), "user_id": str(user_id)} for _ in texts
             ],
         )
