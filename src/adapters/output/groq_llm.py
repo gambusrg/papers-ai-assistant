@@ -4,6 +4,8 @@ from src.domain.ports import LLMPort
 
 
 class GroqLLM(LLMPort):
+    """Groq API implementation of LLMPort."""
+
     def __init__(self, client: Groq):
         self.client = client
 
@@ -13,6 +15,7 @@ class GroqLLM(LLMPort):
         model: str,
         system_prompt: str | None = None,
     ) -> str:
+        """Sends prompt to Groq and returns the model response as a string."""
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})

@@ -3,14 +3,13 @@ from src.domain.state import State
 
 
 def reader_agent(state: State) -> dict:
-    """
-    Updates the state with the read paper
+    """Reads paper content from source URL or file path.
 
     Args:
-        state (State): _description_
+        state (State): current graph state, requires 'source' field.
 
     Returns:
-        dict: _description_
+        dict: updated title, headers, content and pages.
     """
     reader = ReaderFactory.create_strategy(source=state["source"])
     raw_paper = reader.read(source=state["source"])

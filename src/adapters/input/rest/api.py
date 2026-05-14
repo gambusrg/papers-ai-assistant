@@ -1,13 +1,14 @@
 import datetime
+import hashlib
+import os
+import tempfile
 import uuid
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
-
-from src.application.graph import conversation_graph
 from src.application.graph.processing_graph import graph
 from src.application.graph.conversation_graph import conversation_graph
-from src.adapters.input.rest.api_models import ConversationRequest, PaperRequest
+from src.adapters.input.rest.api_models import ConversationRequest
 from src.domain.conversation_state import ConversationState
 from src.domain.state import State
 import logging
@@ -21,34 +22,66 @@ app = FastAPI()
 
 
 @app.post("/papers")
-def add_paper(request: PaperRequest):
-    """
-    Adds a new paper
+def add_paper(
+    source: str | None = Form(default=None),
+    file: UploadFile | None = File(default=None),
+):
+    if not source and not file:
+        raise HTTPException(
+            status_code=400, detail="Provide either a source URL or a PDF file"
+        )
 
-    Args:
-        paper_soruce (str): _description_
-    """
-    initial_state: State = {
-        "user_id": uuid.UUID("00000000-0000-0000-0000-000000000001"),
-        "source": request.source,
-        "id": uuid.uuid4(),
-        "title": "",
-        "content": "",
-        "headers": [],
-        "pages": 0,
-        "technologies": [],
-        "timestamp": datetime.datetime.now(),
-        "project_interest_points": [],
-        "user_interest_points": [],
-        "project_content_points": "",
-        "user_content_points": "",
-        "related_papers": [],
-        "previous_user_interests": [],
-        "previous_project_interests": [],
-        "user_interests": ["deep learning", "NLP", "transformers", "attention mechanisms"],
-        "project_interests": ["Python", "LLMs", "RAG", "vector databases"],
-    }
-    state = graph.invoke(initial_state)
+    tmp_path = None
+    try:
+        if file:
+            pdf_bytes = file.file.read()
+            paper_id = uuid.uuid5(
+                uuid.NAMESPACE_URL, hashlib.sha256(pdf_bytes).hexdigest()
+            )
+            tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+            tmp.write(pdf_bytes)
+            tmp.close()
+            tmp_path = tmp.name
+            source_path = tmp_path
+        else:
+            source = str(source)
+            paper_id = uuid.uuid5(uuid.NAMESPACE_URL, source)
+            source_path = source
+
+        initial_state: State = {
+            "user_id": uuid.UUID("00000000-0000-0000-0000-000000000001"),
+            "source": source_path,
+            "id": paper_id,
+            "title": "",
+            "content": "",
+            "headers": [],
+            "pages": 0,
+            "technologies": [],
+            "timestamp": datetime.datetime.now(),
+            "project_interest_points": [],
+            "user_interest_points": [],
+            "project_content_points": "",
+            "user_content_points": "",
+            "related_papers": [],
+            "previous_user_interests": [
+                "deep learning",
+                "NLP",
+                "transformers",
+                "attention mechanisms",
+            ],
+            "previous_project_interests": ["Python", "LLMs", "RAG", "vector databases"],
+            "user_interests": [
+                "deep learning",
+                "NLP",
+                "transformers",
+                "attention mechanisms",
+            ],
+            "project_interests": ["Python", "LLMs", "RAG", "vector databases"],
+        }
+        state = graph.invoke(initial_state)
+    finally:
+        if tmp_path:
+            os.unlink(tmp_path)
 
     return {"id": state["id"]}
 

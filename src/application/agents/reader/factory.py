@@ -4,20 +4,15 @@ from src.application.agents.reader.strategies.pdf_reader import FileReader
 
 
 class ReaderFactory:
-    """
-    Determines which factory create
-    """
-
     @staticmethod
     def create_strategy(source: str) -> Reader:
-        """
-        Creates the strategy based on the source
+        """Selects the appropriate reader strategy based on the source.
 
         Args:
-            source (_type_): _description_
+            source (str): URL (http/https) or local file path.
 
         Returns:
-            Reader: _description_
+            Reader: URLReader for URLs, FileReader for local paths.
         """
         if source.startswith("http"):
             return URLReader()

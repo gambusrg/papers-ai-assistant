@@ -1,80 +1,93 @@
-import datetime
 import uuid
 
 import chromadb
 
-from src.domain.models import Paper
 from src.domain.ports import VectorStorePort
 
 
 class ChromaVectorStore(VectorStorePort):
+    """ChromaDB implementation of VectorStorePort. Stores paper chunks with metadata for semantic search."""
+
     def __init__(self, collection: chromadb.Collection):
         self.collection = collection
 
     def exists(self, paper_id: uuid.UUID) -> bool:
-        result = self.collection.get(ids=[str(paper_id)])
+        """Checks if a paper has already been indexed.
+
+        Returns:
+            bool: True if any chunk with the given paper_id exists.
+        """
+        result = self.collection.get(where={"paper_id": str(paper_id)}, limit=1)
         return len(result["ids"]) > 0
 
-    def search_similar(self, query: str, user_id: str, paper_id: str) -> list[Paper]:
+    def search_similar(
+        self, query: str, user_id: str, paper_id: str
+    ) -> list[uuid.UUID]:
+        """Finds other papers by the same user that are semantically similar to the query.
+
+        Args:
+            query (str): semantic search query built from title, technologies and headers.
+            user_id (str): filters results to the current user's papers.
+            paper_id (str): excludes the current paper from results.
+
+        Returns:
+            list[uuid.UUID]: deduplicated list of related paper IDs.
+        """
         results = self.collection.query(
             query_texts=[query],
-            n_results=5,
-            where={"user_id": user_id, "paper_id": paper_id},
+            n_results=20,
+            where={"$and": [{"user_id": user_id}, {"paper_id": {"$ne": paper_id}}]},
         )
-        return [
-            Paper(
-                id=uuid.UUID(m["id"]),
-                user_id=uuid.UUID(m["user_id"]),
-                title=m["title"],
-                headers=m["headers"],
-                pages=m["pages"],
-                technologies=m["technologies"],
-                timestamp=datetime.datetime.fromisoformat(m["timestamp"]),
-                content=doc,
-                user_interest_points=m["user_interest_points"],
-                project_interest_points=m["project_interest_points"],
-                user_content_points=m["user_content_points"],
-                project_content_points=m["project_content_points"],
-            )
-            for m, doc in zip(results["metadatas"][0], results["documents"][0])
-        ]
+        seen = set()
+        related = []
+        for m in results["metadatas"][0]:
+            pid = str(m["paper_id"])
+            if pid not in seen:
+                seen.add(pid)
+                related.append(uuid.UUID(pid))
+        return related
 
     def search_similar_chunks(
         self, query: str, user_id: str, paper_id: str
     ) -> list[str]:
+        """Retrieves the most relevant chunks from a specific paper for RAG.
+
+        Returns:
+            list[str]: top-15 chunks ranked by semantic similarity to the query.
+        """
         results = self.collection.query(
             query_texts=[query],
             n_results=15,
-            where={"paper_id": paper_id},
+            where={"$and": [{"paper_id": paper_id}, {"user_id": user_id}]},
         )
         return results["documents"][0]
 
-    def save_paper(self, paper: Paper) -> None:  # TODO: move to relational DB
-        self.collection.add(
-            ids=[str(paper.id)],
-            documents=[paper.content],
-            metadatas=[
-                {
-                    "id": str(paper.id),
-                    "user_id": str(paper.user_id),
-                    "title": paper.title,
-                    "headers": paper.headers,
-                    "pages": paper.pages,
-                    "technologies": paper.technologies,
-                    "timestamp": paper.timestamp.isoformat(),
-                    "user_interest_points": paper.user_interest_points,
-                    "project_interest_points": paper.project_interest_points,
-                    "user_content_points": paper.user_content_points,
-                    "project_content_points": paper.project_content_points,
-                }
-            ],
-        )
+    def index_paper(
+        self,
+        texts: list[str],
+        paper_id: str,
+        user_id: str,
+        title: str,
+        headers: list[str],
+        pages: int,
+    ) -> None:
+        """Adds chunked paper text to ChromaDB with metadata.
 
-    def index_paper(self, texts: list[str], paper_id: str, user_id: str) -> None:
+        Args:
+            texts (list[str]): list of text chunks from the paper.
+            paper_id, user_id, title, headers, pages: metadata stored on every chunk.
+        """
         self.collection.add(
             ids=[f"{paper_id}_{i}" for i in range(len(texts))],
             documents=texts,
             metadatas=[
-                {"paper_id": str(paper_id), "user_id": str(user_id)} for _ in texts
+                {
+                    "paper_id": paper_id,
+                    "user_id": user_id,
+                    "title": title,
+                    "headers": "|".join(headers),
+                    "pages": pages,
+                }
+                for _ in texts
             ],
         )

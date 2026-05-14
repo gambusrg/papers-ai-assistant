@@ -1,6 +1,10 @@
 from src.domain.ports import VectorStorePort
 from src.domain.state import State
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def orchestrate(state: State, vector_store: VectorStorePort) -> str:
     """Checks if the paper already exists in the vector store and routes accordingly.
@@ -12,5 +16,7 @@ def orchestrate(state: State, vector_store: VectorStorePort) -> str:
     Returns:
         str: "existing" if paper already processed, "new" otherwise
     """
+    logger.info("ORCHESTRATOR | Checking if new paper")
+
     exists = vector_store.exists(paper_id=state["id"])
     return "existing" if exists else "new"
