@@ -5,20 +5,37 @@ import tempfile
 import uuid
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from src.application.graph.processing_graph import graph
-from src.application.graph.conversation_graph import conversation_graph
-from src.adapters.input.rest.api_models import ConversationRequest
-from src.domain.conversation_state import ConversationState
+from src.application.agents.conversational.agent import conversation_agent
+from src.adapters.input.rest.api_models import StartConversationRequest, MessageRequest
+from src.core.dependency_injector import llm, vector_store, conversation_repo
 from src.domain.state import State
 import logging
 
-logging.basicConfig(level=logging.WARNING)
-logging.getLogger("src").setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
+for noisy in ("httpx", "chromadb", "hpack", "httpcore", "urllib3", "sentence_transformers", "watchfiles"):
+    logging.getLogger(noisy).setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get("/")
+def root():
+    return FileResponse("static/index.html")
 
 
 @app.post("/papers")
@@ -86,23 +103,49 @@ def add_paper(
     return {"id": state["id"]}
 
 
+@app.get("/papers")
+def list_papers():
+    """Returns all papers indexed by the current user."""
+    user_id = "00000000-0000-0000-0000-000000000001"
+    return conversation_repo.get_papers(user_id=user_id)
+
+
 @app.post("/conversation")
-def start_conversation(request: ConversationRequest):
-    """
-    Starts a new conversation
+def start_conversation(request: StartConversationRequest):
+    """Creates a new conversation about a specific paper.
 
     Args:
-        request (ConversationRequest): _description_
+        request (StartConversationRequest): contains paper_id.
+
+    Returns:
+        dict: the new conversation_id.
     """
+    user_id = "00000000-0000-0000-0000-000000000001"
+    conversation_id = conversation_repo.create_conversation(
+        user_id=user_id, paper_id=str(request.paper_id)
+    )
+    return {"conversation_id": conversation_id}
 
-    initial_state: ConversationState = {
-        "user_id": uuid.UUID("00000000-0000-0000-0000-000000000001"),
-        "query": request.query,
-        "response": "",
-        "conversation_context": [],
-        "paper_id": request.paper_id,
-    }
 
-    state = conversation_graph.invoke(initial_state)
+@app.post("/conversation/{conversation_id}/message")
+def send_message(conversation_id: str, request: MessageRequest):
+    """Sends a message in an existing conversation and returns the assistant response.
 
-    return {"response": state["response"]}
+    Args:
+        conversation_id (str): ID of the conversation.
+        request (MessageRequest): contains the user query.
+
+    Returns:
+        dict: the assistant response.
+    """
+    user_id = "00000000-0000-0000-0000-000000000001"
+    response = conversation_agent(
+        query=request.query,
+        conversation_id=conversation_id,
+        user_id=user_id,
+        paper_id=conversation_repo.get_paper_id(conversation_id),
+        vector_store=vector_store,
+        llm=llm,
+        sql=conversation_repo,
+    )
+    return {"response": response}

@@ -34,3 +34,25 @@ class LLMPort(ABC):
     def complete(
         self, prompt: str, model: str, system_prompt: str | None = None
     ) -> str: ...
+
+
+class SQLitePort(ABC):
+    """Abstract port for conversation persistence operations."""
+
+    @abstractmethod
+    def create_conversation(self, user_id: str, paper_id: str) -> str: ...
+
+    @abstractmethod
+    def add_message(self, conversation_id: str, role: str, content: str) -> None: ...
+
+    @abstractmethod
+    def get_messages(self, conversation_id: str) -> list[dict]: ...
+
+    @abstractmethod
+    def get_paper_id(self, conversation_id: str) -> str: ...
+
+    @abstractmethod
+    def add_paper(self, paper_id: str, user_id: str, title: str) -> None: ...
+
+    @abstractmethod
+    def get_papers(self, user_id: str) -> list[dict]: ...

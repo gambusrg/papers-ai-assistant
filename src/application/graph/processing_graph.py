@@ -8,7 +8,7 @@ from src.application.agents.indexer.agent import indexer_agent
 from src.application.agents.memory.agent import memory_agent
 from src.application.agents.orchestrator.agent import orchestrate
 from src.application.agents.reader.agent import reader_agent
-from src.core.dependency_injector import llm, vector_store
+from src.core.dependency_injector import llm, vector_store, conversation_repo
 from src.domain.state import State
 
 graph = StateGraph(State)
@@ -28,7 +28,7 @@ graph.add_node(
 graph.add_edge("reader", "indexer")
 graph.add_edge("indexer", "extractor")
 
-graph.add_node("memory", partial(memory_agent, vector_store=vector_store))
+graph.add_node("memory", partial(memory_agent, vector_store=vector_store, sql=conversation_repo))
 
 graph.add_edge("extractor", "memory")
 graph.add_edge("memory", END)

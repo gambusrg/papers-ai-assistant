@@ -33,14 +33,17 @@ class ChromaVectorStore(VectorStorePort):
         Returns:
             list[uuid.UUID]: deduplicated list of related paper IDs.
         """
+        total = self.collection.count()
+        if total == 0:
+            return []
         results = self.collection.query(
             query_texts=[query],
-            n_results=20,
+            n_results=min(20, total),
             where={"$and": [{"user_id": user_id}, {"paper_id": {"$ne": paper_id}}]},
         )
         seen = set()
         related = []
-        for m in results["metadatas"][0]:
+        for m in (results["metadatas"] or [[]])[0]:
             pid = str(m["paper_id"])
             if pid not in seen:
                 seen.add(pid)
@@ -55,12 +58,15 @@ class ChromaVectorStore(VectorStorePort):
         Returns:
             list[str]: top-15 chunks ranked by semantic similarity to the query.
         """
+        total = self.collection.count()
+        if total == 0:
+            return []
         results = self.collection.query(
             query_texts=[query],
-            n_results=15,
+            n_results=min(15, total),
             where={"$and": [{"paper_id": paper_id}, {"user_id": user_id}]},
         )
-        return results["documents"][0]
+        return (results["documents"] or [[]])[0]
 
     def index_paper(
         self,
