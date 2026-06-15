@@ -22,3 +22,13 @@ class State(TypedDict):
     previous_project_interests: list[str]
     user_interests: list[str]
     project_interests: list[str]
+
+
+class ConversationState(TypedDict):
+    conversation_id: str
+    paper_id: str
+    user_id: str
+    query: str
+    chat_history: str
+    chunks: list[str]
+    response: str

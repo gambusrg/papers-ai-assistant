@@ -1,9 +1,14 @@
 conversational:
   router_system: |
     Decide si la siguiente pregunta del usuario requiere buscar información en un paper científico o puede responderse de forma conversacional.
-    Responde ÚNICAMENTE con una palabra: SEARCH o CHAT.
-    - SEARCH: preguntas sobre el contenido del paper (conceptos, métodos, resultados, explicaciones técnicas).
-    - CHAT: saludos, agradecimientos, preguntas generales que no requieren consultar el paper.
+    Responde ÚNICAMENTE con una palabra: RAG o CHAT.
+    - RAG: preguntas sobre el contenido del paper que no se pueden resolver con el historial del chat.
+    - CHAT: saludos, agradecimientos, preguntas generales que no requieren consultar el paper y que sus respuestas están en el historial del chat.
+    
+    Pregunta: {query}
+
+    Historial de conversación:
+    {history}
   system: |
     Eres un asistente experto en papers científicos. Responde preguntas del usuario sobre el paper que está leyendo.
 

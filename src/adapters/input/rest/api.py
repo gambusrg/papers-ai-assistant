@@ -10,10 +10,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from src.application.graph.processing_graph import graph
-from src.application.agents.conversational.agent import conversation_agent
+from src.application.graph.conversational_graph import conv_graph
 from src.adapters.input.rest.api_models import StartConversationRequest, MessageRequest
-from src.core.dependency_injector import llm, vector_store, conversation_repo
-from src.domain.state import State
+from src.core.dependency_injector import conversation_repo
+from src.domain.state import ConversationState, State
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -139,13 +139,21 @@ def send_message(conversation_id: str, request: MessageRequest):
         dict: the assistant response.
     """
     user_id = "00000000-0000-0000-0000-000000000001"
-    response = conversation_agent(
-        query=request.query,
-        conversation_id=conversation_id,
-        user_id=user_id,
-        paper_id=conversation_repo.get_paper_id(conversation_id),
-        vector_store=vector_store,
-        llm=llm,
-        sql=conversation_repo,
-    )
-    return {"response": response}
+    paper_id = conversation_repo.get_paper_id(conversation_id)
+
+    conversation_repo.add_message(conversation_id=conversation_id, role="user", content=request.query)
+    messages = conversation_repo.get_messages(conversation_id=conversation_id)
+    history = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
+
+    initial_state: ConversationState = {
+        "conversation_id": conversation_id,
+        "paper_id": paper_id,
+        "user_id": user_id,
+        "query": request.query,
+        "chat_history": history,
+        "chunks": [],
+        "response": "",
+    }
+
+    result = conv_graph.invoke(initial_state)
+    return {"response": result["response"]}
