@@ -25,14 +25,16 @@ TEST_PAPER = Paper(
     related_papers=[],
 )
 
-from src.domain.conversation_state import ConversationState
+from src.domain.state import ConversationState
 
 TEST_CONVERSATION_STATE: ConversationState = {
-    "user_id": TEST_USER_ID,
-    "paper_id": TEST_PAPER_ID,
+    "conversation_id": "conv-0001",
+    "user_id": str(TEST_USER_ID),
+    "paper_id": str(TEST_PAPER_ID),
     "query": "What does this paper say about attention mechanisms?",
+    "chat_history": "",
+    "chunks": [],
     "response": "",
-    "conversation_context": [],
 }
 
 TEST_STATE: State = {
