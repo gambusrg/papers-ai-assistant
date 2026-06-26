@@ -1,4 +1,3 @@
-
 from src.application.agents.comparator.agent import compare
 from tests.constants import TEST_STATE
 

@@ -116,7 +116,7 @@ class SQLiteConversationRepository(SQLitePort):
         if row is None:
             raise ValueError(f"Conversation {conversation_id} not found")
         return row[0]
-    
+
     def add_paper(self, paper_id: str, user_id: str, title: str) -> None:
         """Saves a paper's metadata to SQLite.
 
@@ -147,4 +147,3 @@ class SQLiteConversationRepository(SQLitePort):
                 (user_id,),
             ).fetchall()
         return [{"id": row[0], "title": row[1]} for row in rows]
-        

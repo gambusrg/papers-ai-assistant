@@ -12,7 +12,9 @@ graph = StateGraph(ConversationState)
 graph.add_node("rag", partial(rag_node, vector_store=vector_store))
 graph.add_node("generator", partial(generator_node, llm=llm, sql=conversation_repo))
 
-graph.add_conditional_edges(START, partial(route, llm=llm), {"rag": "rag", "chat": "generator"})
+graph.add_conditional_edges(
+    START, partial(route, llm=llm), {"rag": "rag", "chat": "generator"}
+)
 graph.add_edge("rag", "generator")
 graph.add_edge("generator", END)
 

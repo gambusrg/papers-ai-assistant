@@ -17,7 +17,15 @@ from src.domain.state import ConversationState, State
 import logging
 
 logging.basicConfig(level=logging.INFO)
-for noisy in ("httpx", "chromadb", "hpack", "httpcore", "urllib3", "sentence_transformers", "watchfiles"):
+for noisy in (
+    "httpx",
+    "chromadb",
+    "hpack",
+    "httpcore",
+    "urllib3",
+    "sentence_transformers",
+    "watchfiles",
+):
     logging.getLogger(noisy).setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
@@ -141,7 +149,9 @@ def send_message(conversation_id: str, request: MessageRequest):
     user_id = "00000000-0000-0000-0000-000000000001"
     paper_id = conversation_repo.get_paper_id(conversation_id)
 
-    conversation_repo.add_message(conversation_id=conversation_id, role="user", content=request.query)
+    conversation_repo.add_message(
+        conversation_id=conversation_id, role="user", content=request.query
+    )
     messages = conversation_repo.get_messages(conversation_id=conversation_id)
     history = "\n".join(f"{m['role']}: {m['content']}" for m in messages)
 

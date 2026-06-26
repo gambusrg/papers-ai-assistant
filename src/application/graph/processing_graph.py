@@ -28,7 +28,9 @@ graph.add_node(
 graph.add_edge("reader", "indexer")
 graph.add_edge("indexer", "extractor")
 
-graph.add_node("memory", partial(memory_agent, vector_store=vector_store, sql=conversation_repo))
+graph.add_node(
+    "memory", partial(memory_agent, vector_store=vector_store, sql=conversation_repo)
+)
 
 graph.add_edge("extractor", "memory")
 graph.add_edge("memory", END)

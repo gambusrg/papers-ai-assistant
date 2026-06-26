@@ -17,7 +17,9 @@ def rag_node(state: ConversationState, vector_store: VectorStorePort) -> dict:
         user_id=state["user_id"],
         paper_id=state["paper_id"],
     )
-    logger.info(f"RAG NODE | Retrieved {len(chunks)} chunks for query='{state['query']}'")
+    logger.info(
+        f"RAG NODE | Retrieved {len(chunks)} chunks for query='{state['query']}'"
+    )
     return {"chunks": chunks}
 
 

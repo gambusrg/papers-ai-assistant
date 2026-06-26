@@ -24,7 +24,9 @@ def test_extractor_agent():
     mock_vector_store.search_similar_chunks.return_value = ["chunk1"]
 
     # Act
-    result = extractor_agent(state=TEST_STATE, llm=mock_llm_port, vector_store=mock_vector_store)
+    result = extractor_agent(
+        state=TEST_STATE, llm=mock_llm_port, vector_store=mock_vector_store
+    )
 
     # Assert
     result == {

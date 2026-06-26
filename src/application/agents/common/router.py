@@ -19,6 +19,3 @@ def route(state: ConversationState, llm: LLMPort) -> str:
     response = llm.complete(prompt=prompt, model="llama-3.3-70b-versatile")
     logger.info(f"ROUTER | query='{state['query']}' → {response.strip()}")
     return "rag" if "rag" in response.lower() else "chat"
-
-
-

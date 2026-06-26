@@ -1,4 +1,5 @@
-sql_statements = ["""CREATE TABLE IF NOT EXISTS conversations (
+sql_statements = [
+    """CREATE TABLE IF NOT EXISTS conversations (
     id          TEXT PRIMARY KEY,
     paper_id    TEXT NOT NULL,
     user_id     TEXT NOT NULL,
@@ -11,4 +12,5 @@ CREATE TABLE IF NOT EXISTS messages (
     role                TEXT NOT NULL,  -- 'user' | 'assistant'
     content             TEXT NOT NULL,
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);"""]
+);"""
+]

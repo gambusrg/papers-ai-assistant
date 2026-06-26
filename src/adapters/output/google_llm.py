@@ -1,4 +1,3 @@
-
 from google import genai
 
 from src.domain.ports import LLMPort

@@ -3,7 +3,6 @@ from typing import Dict
 from pymupdf import Document
 
 
-
 def extract(doc: Document) -> Dict:
     """Extract all the data from the pdf
 
