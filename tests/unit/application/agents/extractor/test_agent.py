@@ -1,7 +1,6 @@
 import json
 from unittest.mock import MagicMock
 
-import pytest
 
 from src.application.agents.extractor.agent import extractor_agent
 from src.domain.ports import LLMPort

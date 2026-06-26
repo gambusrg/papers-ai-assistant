@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-import pytest
 
 from src.application.agents.orchestrator.agent import orchestrate
 from src.domain.ports import VectorStorePort

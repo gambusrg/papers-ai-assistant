@@ -1,7 +1,5 @@
-import pytest
 
 from src.application.agents.comparator.agent import compare
-from src.domain.state import State
 from tests.constants import TEST_STATE
 
 

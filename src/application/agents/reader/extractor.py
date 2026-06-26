@@ -2,7 +2,6 @@ from typing import Dict
 
 from pymupdf import Document
 
-from src.domain.models import RawPaper
 
 
 def extract(doc: Document) -> Dict:

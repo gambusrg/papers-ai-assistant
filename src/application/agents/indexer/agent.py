@@ -21,7 +21,7 @@ def indexer_agent(state: State, vector_store: VectorStorePort) -> dict:
     text_splitter = RecursiveCharacterTextSplitter()
     texts = text_splitter.split_text(text=state["content"])
 
-    logger.info(f"INDEXING AGENT | Indexing chunks")
+    logger.info("INDEXING AGENT | Indexing chunks")
     vector_store.index_paper(
         texts=texts,
         paper_id=str(state["id"]),

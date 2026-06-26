@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 from src.domain.models import Paper
-from src.domain.state import State
+from src.domain.state import ConversationState, State
 
 TEST_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 TEST_PAPER_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
@@ -24,8 +24,6 @@ TEST_PAPER = Paper(
     previous_project_interests=["python", "pytorch"],
     related_papers=[],
 )
-
-from src.domain.state import ConversationState
 
 TEST_CONVERSATION_STATE: ConversationState = {
     "conversation_id": "conv-0001",
